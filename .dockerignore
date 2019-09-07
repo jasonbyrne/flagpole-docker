@@ -1,0 +1,7 @@
+src
+src/*
+node_modules
+node_modules/*
+npm-debug.log
+tscconfig.json
+*.sh

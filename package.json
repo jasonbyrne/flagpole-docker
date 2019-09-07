@@ -1,0 +1,33 @@
+{
+  "name": "flagpole-docker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "./build.sh",
+    "run": "./run.sh",
+    "start": "node dist/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasonbyrne/flagpole-docker.git"
+  },
+  "author": "Jason Byrne <jasonbyrne662@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/jasonbyrne/flagpole-docker/issues"
+  },
+  "homepage": "https://github.com/jasonbyrne/flagpole-docker#readme",
+  "dependencies": {
+    "@types/fs-extra": "^8.0.0",
+    "ajv": "^6.10.2",
+    "express": "^4.17.1",
+    "flagpole": "^2.0.53",
+    "fs-extra": "^8.1.0",
+    "jmespath": "^0.15.0",
+    "puppeteer": "^1.19.0",
+    "unzipper": "^0.10.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.1"
+  }
+}
