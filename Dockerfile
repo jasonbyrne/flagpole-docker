@@ -1,30 +1,31 @@
-FROM node:10.15
+FROM node:10-slim
 
 # Install Puppeteer Deps
-RUN apt-get update && apt-get install -y wget --no-install-recommends \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
-    && apt-get install -y google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst ttf-freefont \
+    && apt-get install -y google-chrome-unstable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf \
     --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get purge --auto-remove -y curl \
-    && rm -rf /src/*.deb
+    && rm -rf /var/lib/apt/lists/*
 
-# Clean up script published by Yelp to remove zombie processes
-ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
-RUN chmod +x /usr/local/bin/dumb-init
+# Install puppeteer so it's available in the container.
+RUN npm i puppeteer \
+    # Add user so we don't need --no-sandbox.
+    # same layer as npm install to keep re-chowned files from using up several hundred MBs more space
+    && groupadd -r pptruser && useradd -r -g pptruser -G audio,video pptruser \
+    && mkdir -p /home/pptruser/Downloads \
+    && chown -R pptruser:pptruser /home/pptruser \
+    && mkdir -p /home/pptruser/node_modules \
+    && chown -R pptruser:pptruser /home/pptruser/node_modules
 
-# Create app directory
-WORKDIR /usr/src/app
-# Install app dependencies
-COPY package*.json ./
-RUN npm i
+# Install application
+WORKDIR /home/pptruser
 RUN npm i -g flagpole
-# Bundle app source
-COPY . .
+COPY package*.json ./
+USER pptruser
+RUN npm i
+COPY --chown=pptruser:pptruser . .
 
 # Expose port and file to run
 EXPOSE 8080
-ENTRYPOINT ["dumb-init", "--"]
-CMD npm run start
+CMD ["node", "dist/server.js"]
